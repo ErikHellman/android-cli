@@ -41,7 +41,7 @@ func Load() error {
 	v.AutomaticEnv()
 
 	// Defaults
-	v.SetDefault("github_repo", "android-cli/acli")
+	v.SetDefault("github_repo", "ErikHellman/android-cli")
 
 	cfgDir, err := configDir()
 	if err != nil {
