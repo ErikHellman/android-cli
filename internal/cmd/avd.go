@@ -73,6 +73,7 @@ func newAVDListCmd() *cobra.Command {
 func newAVDCreateCmd() *cobra.Command {
 	var (
 		flagAPI    string
+		flagTag    string
 		flagDevice string
 		flagABI    string
 		flagSDCard string
@@ -87,7 +88,8 @@ func newAVDCreateCmd() *cobra.Command {
 Examples:
   acli avd create Pixel9 --api 35
   acli avd create MyPhone --api 34 --device "pixel_7" --abi arm64-v8a
-  acli avd create TestPhone --api 35 --sdcard 512M`,
+  acli avd create TestPhone --api 35 --sdcard 512M
+  acli avd create MyAuto --api 34 --tag android-automotive-playstore --device "android-automotive-playstore" --abi arm64-v8a`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flagAPI == "" {
@@ -101,7 +103,7 @@ Examples:
 
 			name := args[0]
 			output.Info("Creating AVD %q (API %s)…", name, flagAPI)
-			if err := svc.Create(cmd.Context(), name, flagAPI, flagDevice, flagABI, flagSDCard, flagForce); err != nil {
+			if err := svc.Create(cmd.Context(), name, flagAPI, flagTag, flagDevice, flagABI, flagSDCard, flagForce); err != nil {
 				return handleErr(err)
 			}
 			output.Success("AVD %q created. Start it with: acli avd start %s", name, name)
@@ -110,8 +112,9 @@ Examples:
 	}
 
 	cmd.Flags().StringVar(&flagAPI, "api", "", "Android API level (required), e.g. 35")
+	cmd.Flags().StringVar(&flagTag, "tag", "", "System image tag (default: google_apis), e.g. android-automotive-playstore")
 	cmd.Flags().StringVar(&flagDevice, "device", "", "Hardware device definition, e.g. pixel_7")
-	cmd.Flags().StringVar(&flagABI, "abi", "x86_64", "System image ABI: x86_64, arm64-v8a")
+	cmd.Flags().StringVar(&flagABI, "abi", "arm64-v8a", "System image ABI: arm64-v8a, x86_64")
 	cmd.Flags().StringVar(&flagSDCard, "sdcard", "", "SD card size, e.g. 512M")
 	cmd.Flags().BoolVarP(&flagForce, "force", "f", false, "Overwrite an existing AVD with the same name")
 	_ = cmd.MarkFlagRequired("api")

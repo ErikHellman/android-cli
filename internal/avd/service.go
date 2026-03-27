@@ -82,7 +82,7 @@ func (s *Service) List(ctx context.Context, runningOnly bool) ([]AVD, error) {
 }
 
 // Create creates a new AVD.
-func (s *Service) Create(ctx context.Context, name, api, device, abi, sdcard string, force bool) error {
+func (s *Service) Create(ctx context.Context, name, api, tag, device, abi, sdcard string, force bool) error {
 	bin, err := s.loc.Binary("avdmanager")
 	if err != nil {
 		return avdBinaryErr(err)
@@ -90,11 +90,16 @@ func (s *Service) Create(ctx context.Context, name, api, device, abi, sdcard str
 
 	// Build system image ID
 	if abi == "" {
-		abi = "x86_64"
+		abi = "arm64-v8a"
 	}
-	imageID := fmt.Sprintf("system-images;android-%s;google_apis;%s", api, abi)
+	// avdmanager expects hyphens in ABI names (arm64-v8a), not underscores.
+	abi = strings.ReplaceAll(abi, "_", "-")
+	if tag == "" {
+		tag = "google_apis"
+	}
+	imageID := fmt.Sprintf("system-images;android-%s;%s;%s", api, tag, abi)
 
-	args := []string{"create", "avd", "-n", name, "-k", imageID, "--force"}
+	args := []string{"create", "avd", "-n", name, "-k", imageID}
 	if device != "" {
 		args = append(args, "-d", device)
 	}
@@ -102,7 +107,7 @@ func (s *Service) Create(ctx context.Context, name, api, device, abi, sdcard str
 		args = append(args, "-c", sdcard)
 	}
 	if force {
-		args = append(args, "-f")
+		args = append(args, "--force")
 	}
 
 	// avdmanager prompts "Do you wish to create a custom hardware profile?" → send "no"
@@ -111,7 +116,7 @@ func (s *Service) Create(ctx context.Context, name, api, device, abi, sdcard str
 		return fmt.Errorf("avdmanager create: %w", err)
 	}
 	if res.ExitCode != 0 {
-		if ae := aclerr.Classify("emulator", res.Stderr); ae != nil {
+		if ae := aclerr.Classify("avdmanager", res.Stderr); ae != nil {
 			return ae
 		}
 		return fmt.Errorf("avdmanager create: %s", res.Stderr)
