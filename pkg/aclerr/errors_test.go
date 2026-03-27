@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/android-cli/acli/pkg/aclerr"
+	"github.com/ErikHellman/android-cli/pkg/aclerr"
 )
 
 func TestAcliError_Error(t *testing.T) {

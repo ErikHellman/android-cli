@@ -167,7 +167,7 @@ Installs to `%LOCALAPPDATA%\Programs\acli\` and adds it to your user `PATH` — 
 ### Build from source
 
 ```bash
-git clone https://github.com/android-cli/acli.git
+git clone https://github.com/ErikHellman/android-cli.git
 cd acli
 make install          # builds and installs to $GOPATH/bin
 ```
@@ -175,7 +175,7 @@ make install          # builds and installs to $GOPATH/bin
 Or without `make`:
 
 ```bash
-go install github.com/android-cli/acli/cmd/acli@latest
+go install github.com/ErikHellman/android-cli/cmd/acli@latest
 ```
 
 ### Verify the installation
@@ -484,7 +484,7 @@ The skill template is also available at [`assets/skills/acli/SKILL.md`](assets/s
 ### Getting started
 
 ```bash
-git clone https://github.com/android-cli/acli.git
+git clone https://github.com/ErikHellman/android-cli.git
 cd acli
 
 # Download dependencies (no network needed after this)

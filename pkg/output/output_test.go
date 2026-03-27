@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/android-cli/acli/pkg/aclerr"
-	"github.com/android-cli/acli/pkg/output"
+	"github.com/ErikHellman/android-cli/pkg/aclerr"
+	"github.com/ErikHellman/android-cli/pkg/output"
 )
 
 // captureStderr temporarily replaces os.Stderr and returns captured content.

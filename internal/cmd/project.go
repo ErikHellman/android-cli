@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/android-cli/acli/pkg/output"
+	"github.com/ErikHellman/android-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 

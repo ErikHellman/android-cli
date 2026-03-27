@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/android-cli/acli/pkg/config"
-	"github.com/android-cli/acli/pkg/output"
-	"github.com/android-cli/acli/pkg/update"
+	"github.com/ErikHellman/android-cli/pkg/config"
+	"github.com/ErikHellman/android-cli/pkg/output"
+	"github.com/ErikHellman/android-cli/pkg/update"
 	"github.com/spf13/cobra"
 )
 

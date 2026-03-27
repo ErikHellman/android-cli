@@ -167,6 +167,23 @@ var catalog = []ErrorPattern{
 		},
 	},
 
+	// ── avdmanager ───────────────────────────────────────────────────────
+	{
+		Tool:    "avdmanager",
+		Pattern: regexp.MustCompile(`(?i)package path is not valid`),
+		Build: func(_ string) *AcliError {
+			return &AcliError{
+				Code:    ErrInvalidPackage,
+				Message: "System image is not installed.",
+				Detail:  "The system image package does not exist locally. Install it first, then create the AVD.",
+				FixCmds: []string{
+					"acli avd images",
+					`acli sdk install "system-images;android-<api>;<tag>;<abi>"`,
+				},
+			}
+		},
+	},
+
 	// ── emulator ─────────────────────────────────────────────────────────
 	{
 		Tool:    "emulator",

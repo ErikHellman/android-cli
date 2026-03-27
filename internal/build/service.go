@@ -9,8 +9,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/android-cli/acli/pkg/aclerr"
-	"github.com/android-cli/acli/pkg/runner"
+	"github.com/ErikHellman/android-cli/pkg/aclerr"
+	"github.com/ErikHellman/android-cli/pkg/runner"
 )
 
 // Service wraps Gradle wrapper operations.

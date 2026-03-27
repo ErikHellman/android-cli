@@ -4,9 +4,9 @@ package cmd
 import (
 	"os"
 
-	"github.com/android-cli/acli/pkg/aclerr"
-	"github.com/android-cli/acli/pkg/config"
-	"github.com/android-cli/acli/pkg/output"
+	"github.com/ErikHellman/android-cli/pkg/aclerr"
+	"github.com/ErikHellman/android-cli/pkg/config"
+	"github.com/ErikHellman/android-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 

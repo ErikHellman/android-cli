@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/android-cli/acli/pkg/runner"
+	"github.com/ErikHellman/android-cli/pkg/runner"
 )
 
 func TestRunCapture_Echo(t *testing.T) {

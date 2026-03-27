@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/android-cli/acli/internal/avd"
-	"github.com/android-cli/acli/pkg/android"
-	"github.com/android-cli/acli/pkg/output"
+	"github.com/ErikHellman/android-cli/internal/avd"
+	"github.com/ErikHellman/android-cli/pkg/android"
+	"github.com/ErikHellman/android-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 
@@ -85,11 +86,13 @@ func newAVDCreateCmd() *cobra.Command {
 		Short: "Create a new Android Virtual Device",
 		Long: `Create a new AVD. The system image must be installed first.
 
+Use "acli avd images" to browse available images and see the exact flags to pass here.
+
 Examples:
   acli avd create Pixel9 --api 35
   acli avd create MyPhone --api 34 --device "pixel_7" --abi arm64-v8a
   acli avd create TestPhone --api 35 --sdcard 512M
-  acli avd create MyAuto --api 34 --tag android-automotive-playstore --device "android-automotive-playstore" --abi arm64-v8a`,
+  acli avd create MyAuto --api 34 --tag android-automotive-playstore --device automotive_1024p_landscape --abi arm64-v8a`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flagAPI == "" {
@@ -151,9 +154,9 @@ func newAVDDeleteCmd() *cobra.Command {
 
 func newAVDStartCmd() *cobra.Command {
 	var (
-		flagHeadless  bool
-		flagPort      int
-		flagWaitBoot  bool
+		flagHeadless bool
+		flagPort     int
+		flagWaitBoot bool
 	)
 
 	cmd := &cobra.Command{
@@ -228,9 +231,21 @@ func newAVDImagesCmd() *cobra.Command {
 	var flagAPI string
 
 	cmd := &cobra.Command{
-		Use:   "images",
+		Use:   "images [search]",
 		Short: "List installable system images",
-		RunE: func(cmd *cobra.Command, _ []string) error {
+		Long: `List available Android system images.
+
+The optional search argument filters by any field (API level, tag, ABI, or description).
+For installed images, the "Next step" column shows flags to pass to "acli avd create <name>".
+For uninstalled images, it shows the install command to run first.
+
+Examples:
+  acli avd images
+  acli avd images --api 35
+  acli avd images playstore
+  acli avd images arm64`,
+		Args: cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
 			loc, err := android.New()
 			if err != nil {
 				return handleErr(err)
@@ -242,15 +257,42 @@ func newAVDImagesCmd() *cobra.Command {
 				return handleErr(err)
 			}
 
+			if len(args) > 0 {
+				query := strings.ToLower(args[0])
+				var filtered []avd.Image
+				for _, img := range images {
+					if strings.Contains(strings.ToLower(img.API), query) ||
+						strings.Contains(strings.ToLower(img.Tag), query) ||
+						strings.Contains(strings.ToLower(img.ABI), query) ||
+						strings.Contains(strings.ToLower(img.Description), query) {
+						filtered = append(filtered, img)
+					}
+				}
+				images = filtered
+			}
+
 			if len(images) == 0 {
 				output.Info("No system images found. Install one with: acli sdk install \"system-images;android-35;google_apis;x86_64\"")
 				return nil
 			}
 
-			headers := []string{"Path", "Version", "Description"}
+			headers := []string{"API", "Tag", "ABI", "Installed", "Next step"}
 			var rows [][]string
 			for _, img := range images {
-				rows = append(rows, []string{img.Path, img.Version, img.Description})
+				installed := ""
+				var hint string
+				if img.Installed {
+					installed = "yes"
+					device := defaultDevice(img.Tag)
+					if device != "" {
+						hint = fmt.Sprintf("--api %s --tag %s --abi %s --device %s", img.API, img.Tag, img.ABI, device)
+					} else {
+						hint = fmt.Sprintf("--api %s --tag %s --abi %s", img.API, img.Tag, img.ABI)
+					}
+				} else {
+					hint = fmt.Sprintf(`acli sdk install "%s"`, img.Path)
+				}
+				rows = append(rows, []string{img.API, img.Tag, img.ABI, installed, hint})
 			}
 			output.Table(headers, rows)
 			return nil
@@ -259,4 +301,13 @@ func newAVDImagesCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&flagAPI, "api", "", "Filter by API level, e.g. 35")
 	return cmd
+}
+
+// defaultDevice returns a suggested --device value for a given system image tag,
+// or empty string if no specific device is required.
+func defaultDevice(tag string) string {
+	if strings.Contains(tag, "automotive") {
+		return "automotive_1024p_landscape"
+	}
+	return ""
 }

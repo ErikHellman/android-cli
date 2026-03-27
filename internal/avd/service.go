@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/android-cli/acli/pkg/aclerr"
-	"github.com/android-cli/acli/pkg/android"
-	"github.com/android-cli/acli/pkg/runner"
+	"github.com/ErikHellman/android-cli/pkg/aclerr"
+	"github.com/ErikHellman/android-cli/pkg/android"
+	"github.com/ErikHellman/android-cli/pkg/runner"
 )
 
 // AVD represents a single Android Virtual Device.
@@ -24,9 +24,13 @@ type AVD struct {
 
 // Image represents an installable system image.
 type Image struct {
-	Path    string
-	Version string
+	Path        string
+	Version     string
 	Description string
+	API         string // e.g. "35"
+	Tag         string // e.g. "google_apis"
+	ABI         string // e.g. "arm64-v8a"
+	Installed   bool
 }
 
 // Service wraps avdmanager + emulator operations.
@@ -235,8 +239,33 @@ func (s *Service) ListImages(ctx context.Context, api string) ([]Image, error) {
 		return nil, err
 	}
 
+	lines := strings.Split(res.Stdout, "\n")
+
+	// First pass: collect installed system-image paths.
+	installedPaths := make(map[string]bool)
+	inInstalled := false
+	for _, line := range lines {
+		lower := strings.ToLower(strings.TrimSpace(line))
+		if strings.HasPrefix(lower, "installed packages") {
+			inInstalled = true
+			continue
+		}
+		if strings.HasPrefix(lower, "available") {
+			inInstalled = false
+			continue
+		}
+		if inInstalled && strings.Contains(line, "system-images") {
+			parts := strings.SplitN(line, "|", 2)
+			if len(parts) >= 1 {
+				installedPaths[strings.TrimSpace(parts[0])] = true
+			}
+		}
+	}
+
+	// Second pass: collect unique images with parsed fields.
+	seen := make(map[string]bool)
 	var images []Image
-	for _, line := range strings.Split(res.Stdout, "\n") {
+	for _, line := range lines {
 		if !strings.Contains(line, "system-images") {
 			continue
 		}
@@ -247,11 +276,26 @@ func (s *Service) ListImages(ctx context.Context, api string) ([]Image, error) {
 		if len(parts) < 3 {
 			continue
 		}
-		images = append(images, Image{
-			Path:        strings.TrimSpace(parts[0]),
+		path := strings.TrimSpace(parts[0])
+		if seen[path] {
+			continue
+		}
+		seen[path] = true
+
+		img := Image{
+			Path:        path,
 			Version:     strings.TrimSpace(parts[1]),
 			Description: strings.TrimSpace(parts[2]),
-		})
+			Installed:   installedPaths[path],
+		}
+		// Parse path: system-images;android-{api};{tag};{abi}
+		pathParts := strings.SplitN(path, ";", 4)
+		if len(pathParts) == 4 {
+			img.API = strings.TrimPrefix(pathParts[1], "android-")
+			img.Tag = pathParts[2]
+			img.ABI = pathParts[3]
+		}
+		images = append(images, img)
 	}
 	return images, nil
 }

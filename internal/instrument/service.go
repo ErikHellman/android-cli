@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/android-cli/acli/pkg/android"
-	"github.com/android-cli/acli/pkg/runner"
+	"github.com/ErikHellman/android-cli/pkg/android"
+	"github.com/ErikHellman/android-cli/pkg/runner"
 )
 
 // Service wraps adb shell instrumentation commands.

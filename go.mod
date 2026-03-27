@@ -1,4 +1,4 @@
-module github.com/android-cli/acli
+module github.com/ErikHellman/android-cli
 
 go 1.26.1
 

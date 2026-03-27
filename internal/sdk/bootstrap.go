@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/android-cli/acli/pkg/aclerr"
+	"github.com/ErikHellman/android-cli/pkg/aclerr"
 )
 
 const (
