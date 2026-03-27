@@ -148,21 +148,21 @@ All Go library dependencies are declared in `go.mod` and downloaded automaticall
 
 ### Download a pre-built binary (recommended)
 
-Download the latest release for your platform from the [Releases page](https://github.com/android-cli/acli/releases) and place it on your `PATH`:
+Run this on macOS or Linux — it detects your OS and architecture automatically:
 
 ```bash
-# macOS (Apple Silicon)
-curl -L https://github.com/android-cli/acli/releases/latest/download/acli-darwin-arm64 \
-  -o /usr/local/bin/acli && chmod +x /usr/local/bin/acli
-
-# macOS (Intel)
-curl -L https://github.com/android-cli/acli/releases/latest/download/acli-darwin-amd64 \
-  -o /usr/local/bin/acli && chmod +x /usr/local/bin/acli
-
-# Linux (amd64)
-curl -L https://github.com/android-cli/acli/releases/latest/download/acli-linux-amd64 \
-  -o /usr/local/bin/acli && chmod +x /usr/local/bin/acli
+curl -fsSL https://raw.githubusercontent.com/ErikHellman/android-cli/main/install.sh | bash
 ```
+
+**Windows** (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/ErikHellman/android-cli/main/install.ps1 | iex
+```
+
+Installs to `%LOCALAPPDATA%\Programs\acli\` and adds it to your user `PATH` — no administrator rights required.
+
+**Windows via WSL:** If you use Windows Subsystem for Linux, run the macOS/Linux command above inside your WSL terminal instead.
 
 ### Build from source
 
