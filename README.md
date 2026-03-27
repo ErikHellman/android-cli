@@ -1,5 +1,7 @@
 # acli — Unified Android CLI
 
+[![CI](https://github.com/ErikHellman/android-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ErikHellman/android-cli/actions/workflows/ci.yml)
+
 A single, ergonomic command-line interface for all Android development tasks. `acli` wraps `sdkmanager`, `avdmanager`, `adb`, `fastboot`, and Gradle so you never have to memorize package paths, flag syntax, or which binary lives where.
 
 ```
