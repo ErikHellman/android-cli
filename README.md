@@ -234,9 +234,10 @@ acli sdk licenses                      # accept all pending licenses (CI-safe)
 acli avd list                          # all AVDs
 acli avd list --running                # only running emulators
 
-acli avd create Pixel9 --api 35
-acli avd create MyPhone --api 34 --device pixel_7 --abi arm64-v8a
+acli avd create Pixel9 --api 35                                    # arm64-v8a by default
+acli avd create MyPhone --api 34 --device pixel_7 --abi x86_64
 acli avd create TestPhone --api 35 --sdcard 512M --force
+acli avd create MyAuto --api 34 --tag android-automotive-playstore --device android-automotive-playstore
 
 acli avd start Pixel9                  # launch emulator window
 acli avd start Pixel9 --headless       # no window (CI mode)
