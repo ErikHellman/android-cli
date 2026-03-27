@@ -33,6 +33,7 @@ $ acli doctor
 - [JSON Output and Automation](#json-output-and-automation)
 - [AI Agent Integration (Claude Code)](#ai-agent-integration-claude-code)
 - [Development Guide](#development-guide)
+- [Creating a Release](#creating-a-release)
 - [Project Structure](#project-structure)
 - [Configuration](#configuration)
 - [Shell Completion](#shell-completion)
@@ -554,6 +555,47 @@ The version string displayed by `acli --version` and used by `acli update check`
 ```
 
 `make build` and `make release` handle this automatically. If built outside of `make` without `-ldflags`, the version will be reported as `dev`.
+
+---
+
+## Creating a Release
+
+Releases are fully automated via `.github/workflows/release.yml`. The only manual step is tagging.
+
+**1. Ensure `main` is green**
+
+Confirm the CI workflow is passing on `main` before tagging.
+
+**2. Create an annotated tag**
+
+```bash
+git tag -a v1.2.3 -m "Short description of what changed"
+```
+
+Use [semver](https://semver.org) with a `v` prefix. The tag message becomes the seed for the release notes (the workflow also appends the commit log since the previous tag).
+
+**3. Push the tag**
+
+```bash
+git push origin v1.2.3
+```
+
+This is the trigger. Pushing the tag starts the release workflow automatically — no further action is required.
+
+**What the workflow does:**
+
+1. Runs `make test` — the release is aborted if any test fails
+2. Runs `make release` — cross-compiles 5 platform binaries into `dist/`
+3. Generates a `checksums.txt` (all binaries) and individual `<binary>.sha256` sidecars (used by `acli update install`)
+4. Generates release notes from `git log <prev-tag>..HEAD --oneline --no-merges`
+5. Creates a GitHub Release named after the tag and uploads all artifacts
+
+**Verifying the release**
+
+After the workflow completes (~2 minutes), check the [Releases page](https://github.com/ErikHellman/android-cli/releases) and confirm:
+- All 5 binaries are present
+- `checksums.txt` and `.sha256` sidecars are attached
+- `acli update check` reports the new version
 
 ---
 
